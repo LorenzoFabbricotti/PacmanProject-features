@@ -23,8 +23,6 @@ public:
 	
 	void GoHome() override;
 
-	void ScatterPosition() override;
-
 
 
 protected:

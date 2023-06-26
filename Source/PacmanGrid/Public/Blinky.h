@@ -22,9 +22,6 @@ public:
 
 	virtual void GoHome() override;
 
-	void ScatterPosition() override;
-
-
 
 protected:
 	virtual void BeginPlay() override;

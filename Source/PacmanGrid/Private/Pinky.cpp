@@ -18,6 +18,7 @@ void APinky::BeginPlay()
 	Super::BeginPlay();
 
 	this->SetChaseState();
+	UscitaGhost = true;
 }
 
 void APinky::RespawnGhostStartingPosition()
@@ -31,7 +32,7 @@ void APinky::RespawnGhostStartingPosition()
 	SetTargetNode(NextNode);
 
 	SetActorLocation(Location);
-	
+	UscitaGhost = true;
 	this->SetChaseState();
 }
 
@@ -51,10 +52,7 @@ void APinky::GoHome() {
 
 	if (CurrentGridCoords == FVector2D(17, 14))
 	{
+		UscitaGhost = true;
 		this->SetChaseState();
 	}
-}
-
-void APinky::ScatterPosition()
-{
 }

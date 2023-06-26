@@ -38,6 +38,9 @@ public:
 	UPROPERTY(EditAnywhere)
 		USoundCue* TeleportSound;
 
+	UPROPERTY(VisibleAnywhere, Category = "Movement")
+		FVector PreviousDirection;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

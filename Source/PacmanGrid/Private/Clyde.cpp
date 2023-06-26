@@ -18,6 +18,8 @@ void AClyde::BeginPlay()
 	Super::BeginPlay();
 
 	this->SetChaseState();
+
+	UscitaGhost = true;
 }
 
 void AClyde::RespawnGhostStartingPosition()
@@ -33,6 +35,8 @@ void AClyde::RespawnGhostStartingPosition()
 	SetActorLocation(Location);
 
 	this->SetChaseState();
+
+	UscitaGhost = true;
 }
 
 void AClyde::GoHome() {
@@ -49,10 +53,7 @@ void AClyde::GoHome() {
 
 	if (CurrentGridCoords == FVector2D(17, 12))
 	{
+		UscitaGhost = true;
 		this->SetChaseState();
 	}
-}
-
-void AClyde::ScatterPosition()
-{
 }
