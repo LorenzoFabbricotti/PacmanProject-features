@@ -93,4 +93,6 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "Ghost State", meta = (DisplayName = "UscitaGhost"))
 	bool UscitaGhost;
+
+	void ExitGhostArea();
 };

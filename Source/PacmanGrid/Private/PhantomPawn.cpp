@@ -234,10 +234,15 @@ void APhantomPawn::SetGhostTarget()
 			UscitaGhost = false;
 		}
 	}
-	else if (this->IsDeadState() && !UscitaGhost)
+	else if (this->IsDeadState())
 	{
 		//override della casella home per ciascun ghost
 		this->GoHome();
+	}
+
+	else if (UscitaGhost && (IsChaseState() || IsFrightenedState()))
+	{
+		this->ExitGhostArea();
 	}
 }
 
@@ -295,3 +300,30 @@ bool APhantomPawn::IsDeadState()
 
 	else return false;
 }
+
+void APhantomPawn::ExitGhostArea()
+{
+	const AGridBaseNode* Target1 = *(TheGridGen->TileMap.Find(FVector2D(15, 13)));
+
+	AGridBaseNode* PossibleNode1 = TheGridGen->GetClosestNodeFromMyCoordsToTargetCoords(this->GetLastNodeCoords(), Target1->GetGridPosition(), -(this->GetLastValidDirection()));
+
+	if (PossibleNode1)
+	{
+		this->SetNextNodeByDir(TheGridGen->GetThreeDOfTwoDVector(PossibleNode1->GetGridPosition() - this->GetLastNodeCoords()), true);
+	}
+
+	if (CurrentGridCoords == FVector2D(15, 13))
+	{
+		//esci
+		const AGridBaseNode* Target2 = *(TheGridGen->TileMap.Find(FVector2D(17, 13)));
+
+		AGridBaseNode* PossibleNode2 = TheGridGen->GetClosestNodeFromMyCoordsToTargetCoords(this->GetLastNodeCoords(), Target2->GetGridPosition(), -(this->GetLastValidDirection()));
+
+		if (PossibleNode2)
+		{
+			this->SetNextNodeByDir(TheGridGen->GetThreeDOfTwoDVector(PossibleNode2->GetGridPosition() - this->GetLastNodeCoords()), true);
+			this->UscitaGhost = false;
+		}
+	}
+}
+
