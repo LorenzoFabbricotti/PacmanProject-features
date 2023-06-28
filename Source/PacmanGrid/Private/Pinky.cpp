@@ -10,7 +10,7 @@ AGridBaseNode* APinky::GetPlayerRelativeTarget()
 
 APinky::APinky()
 {
-	CurrentGridCoords = FVector2D(14, 14);
+	CurrentGridCoords = FVector2D(20, 18);
 }
 
 void APinky::BeginPlay()
@@ -25,10 +25,10 @@ void APinky::RespawnGhostStartingPosition()
 {
 	Super::RespawnGhostStartingPosition();
 
-	const FVector Location(1450, 1450, GetActorLocation().Z);
+	const FVector Location(2050, 1850, GetActorLocation().Z);
 
-	LastNode = (*(GridGenTMap.Find(FVector2D(14, 14))));
-	SetNextNode(*(GridGenTMap.Find(FVector2D(14, 14))));
+	LastNode = (*(GridGenTMap.Find(FVector2D(20, 18))));
+	SetNextNode(*(GridGenTMap.Find(FVector2D(20, 18))));
 	SetTargetNode(NextNode);
 
 	SetActorLocation(Location);
@@ -41,7 +41,7 @@ void APinky::GoHome() {
 
 	//target node (17,14)
 
-	const AGridBaseNode* Target = *(GridGenTMap.Find(FVector2D(14, 14)));
+	const AGridBaseNode* Target = *(GridGenTMap.Find(FVector2D(20, 18)));
 
 	AGridBaseNode* PossibleNode = TheGridGen->GetClosestNodeFromMyCoordsToTargetCoords(this->GetLastNodeCoords(), Target->GetGridPosition(), -(this->GetLastValidDirection()));
 
@@ -50,7 +50,7 @@ void APinky::GoHome() {
 		this->SetNextNodeByDir(TheGridGen->GetThreeDOfTwoDVector(PossibleNode->GetGridPosition() - this->GetLastNodeCoords()), true);
 	}
 
-	if (CurrentGridCoords == FVector2D(14, 14))
+	if (CurrentGridCoords == FVector2D(20, 18))
 	{
 		UscitaGhost = true;
 		this->SetChaseState();

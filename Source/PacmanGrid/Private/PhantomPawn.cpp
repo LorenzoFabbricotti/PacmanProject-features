@@ -218,22 +218,6 @@ void APhantomPawn::SetGhostTarget()
 			this->SetNextNodeByDir(TheGridGen->GetThreeDOfTwoDVector(PossibleNode->GetGridPosition() - this->GetLastNodeCoords()), true);
 		}
 	}
-	else if (UscitaGhost)
-	{
-		const AGridBaseNode* Target1 = *(TheGridGen->TileMap.Find(FVector2D(17.0, 14.0)));
-
-		AGridBaseNode* PossibleNode1 = TheGridGen->GetClosestNodeFromMyCoordsToTargetCoords(this->GetLastNodeCoords(), Target1->GetGridPosition(), -(this->GetLastValidDirection()));
-
-		if (PossibleNode1)
-		{
-			this->SetNextNodeByDir(TheGridGen->GetThreeDOfTwoDVector(PossibleNode1->GetGridPosition() - this->GetLastNodeCoords()), true);
-		}
-
-		if (CurrentGridCoords == FVector2D(17.0, 14.0))
-		{
-			UscitaGhost = false;
-		}
-	}
 	else if (this->IsDeadState())
 	{
 		//override della casella home per ciascun ghost
