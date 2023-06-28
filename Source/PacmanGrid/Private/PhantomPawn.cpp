@@ -38,7 +38,7 @@ void APhantomPawn::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* O
 	const auto Pacman = Cast<APacmanPawn>(OtherActor);
 
 	//chase state
-	if (this->IsChaseState() || this->IsScatterState())
+	if (this->IsChaseState())
 	{
 		if (Pacman && IsValid(GameInstance)) {
 			GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, FString::Printf(TEXT("I Reached you")));
@@ -108,6 +108,69 @@ void APhantomPawn::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* O
 void APhantomPawn::OnNodeReached()
 {
 	Super::OnNodeReached();
+	//vuole entrare nella ghost area
+	if (CurrentGridCoords == (FVector2D(17, 13)))
+	{
+		//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Blue, FString::Printf(TEXT("trying to enter")));
+		// Permetti il transito
+		if (IsDeadState() || UscitaGhost)
+		{
+			//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("enter granted")));
+		}
+
+		//Non può entrare, prosegue per la sua direzione
+		else
+		{
+			//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, FString::Printf(TEXT("enter denied")));
+			LastValidInputDirection = PreviousDirection;
+			SetNextNodeByDir(LastValidInputDirection, true);
+			SetTargetNode(NextNode);
+		}
+	}
+
+	//vuole uscire dalla ghost area
+	else if ((CurrentGridCoords == (FVector2D(15, 13)) || CurrentGridCoords == (FVector2D(15, 12)) || CurrentGridCoords == (FVector2D(15, 14))) && (LastInputDirection.X > 0 || LastValidInputDirection.X > 0))
+	{
+		//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Blue, FString::Printf(TEXT("trying to exit")));
+
+		// Permetti il transito
+		if ((IsChaseState() || IsFrightenedState()) && UscitaGhost)
+		{
+			//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Green, FString::Printf(TEXT("exit granted")));
+			this->UscitaGhost = false;
+		}
+		// Blocca il transito
+		else
+		{
+			if (CurrentGridCoords == FVector2D(15, 12)) {
+				LastNode = (*(TheGridGen->TileMap.Find(FVector2D(15, 12))));
+				//torna indietro
+				FVector OppositeDirection = -GetLastValidDirection();
+				SetNextNodeByDir(OppositeDirection, true);
+				SetTargetNode(NextNode);
+			}
+			else if (CurrentGridCoords == FVector2D(15, 13)) {
+				//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, FString::Printf(TEXT("exit denied")));
+				LastNode = (*(TheGridGen->TileMap.Find(FVector2D(15, 13))));
+				//torna indietro
+				FVector OppositeDirection = -GetLastValidDirection();
+				SetNextNodeByDir(OppositeDirection, true);
+				SetTargetNode(NextNode);
+			}
+
+			else { // (CurrentGridCoords == FVector2D(15, 14))
+				LastNode = (*(TheGridGen->TileMap.Find(FVector2D(15, 14))));
+				//torna indietro
+				FVector OppositeDirection = -GetLastValidDirection();
+				SetNextNodeByDir(OppositeDirection, true);
+				SetTargetNode(NextNode);
+			}
+		}
+	}
+
+	else if ((CurrentGridCoords == (FVector2D(17, 12)) || CurrentGridCoords == (FVector2D(17, 14))) && (UscitaGhost == true)) {
+		this->UscitaGhost = false;
+	}
 }
 
 void APhantomPawn::Tick(float DeltaTime)
@@ -137,7 +200,7 @@ AGridBaseNode* APhantomPawn::GetPlayerRelativeTarget()
 void APhantomPawn::SetGhostTarget()
 {
 	//chase state allora insegue player, da togliere frightenedstate
-	if (this->IsChaseState() || this->IsFrightenedState())
+	if ((this->IsChaseState() || this->IsFrightenedState()) && !UscitaGhost)
 	{
 		const AGridBaseNode* Target = GetPlayerRelativeTarget();
 		if (!Target)
@@ -155,14 +218,26 @@ void APhantomPawn::SetGhostTarget()
 			this->SetNextNodeByDir(TheGridGen->GetThreeDOfTwoDVector(PossibleNode->GetGridPosition() - this->GetLastNodeCoords()), true);
 		}
 	}
-	else if (this->IsDeadState())
+	else if (UscitaGhost)
+	{
+		const AGridBaseNode* Target1 = *(TheGridGen->TileMap.Find(FVector2D(17.0, 14.0)));
+
+		AGridBaseNode* PossibleNode1 = TheGridGen->GetClosestNodeFromMyCoordsToTargetCoords(this->GetLastNodeCoords(), Target1->GetGridPosition(), -(this->GetLastValidDirection()));
+
+		if (PossibleNode1)
+		{
+			this->SetNextNodeByDir(TheGridGen->GetThreeDOfTwoDVector(PossibleNode1->GetGridPosition() - this->GetLastNodeCoords()), true);
+		}
+
+		if (CurrentGridCoords == FVector2D(17.0, 14.0))
+		{
+			UscitaGhost = false;
+		}
+	}
+	else if (this->IsDeadState() && !UscitaGhost)
 	{
 		//override della casella home per ciascun ghost
 		this->GoHome();
-	}
-	else if(IsScatterState())
-	{
-		this->ScatterPosition();
 	}
 }
 
@@ -174,10 +249,6 @@ void APhantomPawn::RespawnGhostStartingPosition()
 //in override in ciascun ghost
 void APhantomPawn::GoHome()
 {
-}
-
-void APhantomPawn::ChangeDirection() {
-
 }
 
 void APhantomPawn::SetChaseState()
@@ -195,20 +266,6 @@ bool APhantomPawn::IsChaseState()
 	else return false;
 }
 
-void APhantomPawn::SetScatterState()
-{
-	//todo: change direction
-	StaticMesh->SetMaterial(2, DefaultSkin);
-	this->EEnemyState = Scatter;
-}
-
-bool APhantomPawn::IsScatterState()
-{
-	if (this->EEnemyState == Scatter) return true;
-
-	else return false;
-}
-
 void APhantomPawn::SetFrightenedState()
 {
 	//todo: change direction
@@ -220,19 +277,6 @@ void APhantomPawn::SetFrightenedState()
 bool APhantomPawn::IsFrightenedState()
 {
 	if (this->EEnemyState == Frightened) return true;
-
-	else return false;
-}
-
-void APhantomPawn::SetIdleState()
-{
-	StaticMesh->SetMaterial(2, DefaultSkin);
-	this->EEnemyState = Idle;
-}
-
-bool APhantomPawn::IsIdleState()
-{
-	if (this->EEnemyState == Idle) return true;
 
 	else return false;
 }

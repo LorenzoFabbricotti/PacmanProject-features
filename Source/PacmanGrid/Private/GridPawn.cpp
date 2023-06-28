@@ -134,7 +134,7 @@ void AGridPawn::OnNodeReached()
 	}
 
 	//passo dal portale dx
-	if (CurrentGridCoords == (FVector2D(14, 27)))
+	else if (CurrentGridCoords == (FVector2D(14, 27)))
 	{
 		//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Green, FString::Printf(TEXT("Reached Left Portal %s"), *CurrentGridCoords.ToString()));
 		//play sound
@@ -152,6 +152,9 @@ void AGridPawn::OnNodeReached()
 		SetTargetNode(NextNode);
 
 		SetActorLocation(Location);
+	}
+	else if (CurrentGridCoords == (FVector2D(17, 11)) || CurrentGridCoords == (FVector2D(17, 16))) {
+		PreviousDirection = GetLastValidDirection();
 	}
 }
 

@@ -15,9 +15,7 @@ class SoundCue;
 UENUM()
 enum EEnemyState{
 	Chase, //ghost chases pacman
-	Scatter, //ghost walks a default path
 	Frightened, //ghost can be eat by pacman
-	Idle, //ghost in his house
 	Dead //ghost eaten by player when in frightened state
 };
 
@@ -42,6 +40,7 @@ protected:
 private:
 	UPROPERTY(VisibleAnywhere)
 		class APacmanPawn* Player;
+
 
 public:
 	virtual void Tick(float DeltaTime) override;
@@ -76,29 +75,22 @@ public:
 	//respawn starting position
 	virtual void RespawnGhostStartingPosition();
 
-	virtual void ScatterPosition() {};
-
 	//go back in assigned position (when eaten by player)
 	virtual void GoHome();
 
-	void ChangeDirection();
-
 	//gestione stati
 	UPROPERTY(EditAnywhere, Category = "Ghost State", meta = (DisplayName = "Ghost State"))
-		TEnumAsByte<EEnemyState> EEnemyState = Idle;
+		TEnumAsByte<EEnemyState> EEnemyState = Chase;
 
 	void SetChaseState();
 	bool IsChaseState();
 
-	void SetScatterState();
-	bool IsScatterState();
-
 	void SetFrightenedState();
 	bool IsFrightenedState();
 
-	void SetIdleState();
-	bool IsIdleState();
-
 	void SetDeadState();
 	bool IsDeadState();
+
+	UPROPERTY(EditAnywhere, Category = "Ghost State", meta = (DisplayName = "UscitaGhost"))
+	bool UscitaGhost;
 };
